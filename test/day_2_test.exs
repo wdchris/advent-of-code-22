@@ -18,15 +18,15 @@ defmodule DayOneTest do
     end
   end
 
-  describe "get_score" do
+  describe "get_score_by_rps" do
     test "returns 4 for rocks" do
       input = [["A", "X"]]
-      assert DayTwo.get_score(input) == 4
+      assert DayTwo.get_score_by_rps(input) == 4
     end
 
     test "sums 2 rocks rows" do
       input = [["A", "X"], ["A", "X"]]
-      assert DayTwo.get_score(input) == 8
+      assert DayTwo.get_score_by_rps(input) == 8
     end
   end
 end

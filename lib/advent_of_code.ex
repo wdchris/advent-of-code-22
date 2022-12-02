@@ -29,9 +29,10 @@ defmodule AdventOfCode do
     case part do
     1 ->
       DayTwo.read_file("resources/day_two_input.dat")
-      |> DayTwo.get_score()
-    # 2 ->
-    #   DayOne.get_highest_calories("resources/day_one_input.dat", 3)
+      |> DayTwo.get_score_by_rps()
+    2 ->
+      DayTwo.read_file("resources/day_two_input.dat")
+      |> DayTwo.get_score_by_result()
     end
   end
 end
