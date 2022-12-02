@@ -1,13 +1,13 @@
 defmodule DayTwo do
-  def get_score_by_rps([head | tail]) do
+  def get_score([head | tail], mapping_fn) do
     score =
-      map_to_rps(head)
+      mapping_fn.(head)
       |> calculate_score()
 
-    score + get_score_by_rps(tail)
+    score + get_score(tail, mapping_fn)
   end
 
-  def get_score_by_rps([]), do: 0
+  def get_score([], _), do: 0
 
   def map_to_rps([player, us]) do
     one = case player do
@@ -24,16 +24,6 @@ defmodule DayTwo do
 
     [one, two]
   end
-
-  def get_score_by_result([head | tail]) do
-    score =
-      map_to_result(head)
-      |> calculate_score()
-
-    score + get_score_by_result(tail)
-  end
-
-  def get_score_by_result([]), do: 0
 
   def map_to_result([player, us]) do
     one = case player do

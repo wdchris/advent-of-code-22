@@ -29,10 +29,10 @@ defmodule AdventOfCode do
     case part do
     1 ->
       DayTwo.read_file("resources/day_two_input.dat")
-      |> DayTwo.get_score_by_rps()
+      |> DayTwo.get_score(&DayTwo.map_to_rps/1)
     2 ->
       DayTwo.read_file("resources/day_two_input.dat")
-      |> DayTwo.get_score_by_result()
+      |> DayTwo.get_score(&DayTwo.map_to_result/1)
     end
   end
 end
