@@ -1,5 +1,5 @@
 defmodule DayOne do
-  def execute(path, no_of_elves) do
+  def get_highest_calories(path, no_of_elves) do
     read_elves(path)
     |> Enum.map(fn input ->
           read_elf(input)

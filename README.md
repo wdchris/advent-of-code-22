@@ -1,6 +1,6 @@
 # AdventOfCode
 
-Solutions to the 2021 [Advent of Code](https://adventofcode.com/2021) challenge
+Solutions to the 2022 [Advent of Code](https://adventofcode.com/2022) challenge
 
 ## Running
 To install Elixir, please follow the setup guide [here](https://elixir-lang.org/install.html).

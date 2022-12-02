@@ -19,9 +19,9 @@ defmodule AdventOfCode do
   def day_one(part) do
     case part do
     1 ->
-      DayOne.execute("resources/day_one_input.dat", 1)
+      DayOne.get_highest_calories("resources/day_one_input.dat", 1)
     2 ->
-      DayOne.execute("resources/day_one_input.dat", 3)
+      DayOne.get_highest_calories("resources/day_one_input.dat", 3)
     end
   end
 end
