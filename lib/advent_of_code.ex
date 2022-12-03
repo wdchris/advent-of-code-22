@@ -35,4 +35,15 @@ defmodule AdventOfCode do
       |> DayTwo.get_score(&DayTwo.map_to_result/1)
     end
   end
+
+  def day_three(part) do
+    case part do
+    1 ->
+      DayThree.read_file("resources/day_three_input.dat")
+      |> DayThree.get_priority_sum()
+    # 2 ->
+    #   DayTwo.read_file("resources/day_two_input.dat")
+    #   |> DayTwo.get_score(&DayTwo.map_to_result/1)
+    end
+  end
 end

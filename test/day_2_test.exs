@@ -1,4 +1,4 @@
-defmodule DayOneTest do
+defmodule DayTwoTest do
   use ExUnit.Case
 
   describe "map_to_rps" do
