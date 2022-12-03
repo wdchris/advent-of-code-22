@@ -2,7 +2,7 @@ defmodule DayThree do
   def get_priority_sum([head | tail]) do
     score =
       find_incorrect_item(head)
-      |> convert_to_number()
+      |> convert_char_to_number()
 
     score + get_priority_sum(tail)
   end
@@ -29,7 +29,29 @@ defmodule DayThree do
     item
   end
 
-  def convert_to_number(char) do
+  def get_badge_priority_sum(rucksacks) do
+    rucksacks
+    |> Enum.chunk_every(3)
+    |> Enum.map(fn [a, b, c] ->
+        get_badge(a, b, c)
+        |> convert_char_to_number()
+      end)
+    |> Enum.sum()
+  end
+
+  def get_badge(a, b, c) do
+    [item | _] =
+      MapSet.intersection(
+        MapSet.new(String.graphemes(a)),
+        MapSet.new(String.graphemes(b)))
+      |> MapSet.intersection(
+        MapSet.new(String.graphemes(c)))
+      |> MapSet.to_list()
+
+    item
+  end
+
+  def convert_char_to_number(char) do
       char
       |> String.to_charlist
       |> hd
