@@ -1,7 +1,18 @@
 defmodule DayOne do
-  def get_highest_calories(path, no_of_elves) do
-    read_elves(path)
-    |> Enum.map(fn input ->
+  @input_file "resources/day_one_input.dat"
+
+  def part_one() do
+    read_file(@input_file)
+    |> get_highest_calories(1)
+  end
+
+  def part_two() do
+    read_file(@input_file)
+    |> get_highest_calories(3)
+  end
+
+  def get_highest_calories(elves, no_of_elves) do
+    Enum.map(elves, fn input ->
           read_elf(input)
           |> Enum.sum()
         end)
@@ -10,13 +21,13 @@ defmodule DayOne do
     |> Enum.sum()
   end
 
-  defp read_elves(path) do
-    File.read!(path)
-    |> String.split("\n\n")
-  end
-
   defp read_elf(input_str) do
     String.split(input_str, "\n")
     |> Enum.map(&String.to_integer/1)
+  end
+
+  def read_file(path) do
+    File.read!(path)
+    |> String.split("\n\n")
   end
 end

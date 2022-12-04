@@ -1,10 +1,22 @@
 defmodule DayTwo do
-  def get_score([head | tail], mapping_fn) do
+  @input_file "resources/day_two_input.dat"
+
+  def part_one() do
+    read_file(@input_file)
+    |> get_score(&map_to_rps/1)
+  end
+
+  def part_two() do
+    read_file(@input_file)
+    |> get_score(&map_to_result/1)
+  end
+
+  def get_score([head | tail], f) do
     score =
-      mapping_fn.(head)
+      f.(head)
       |> calculate_score()
 
-    score + get_score(tail, mapping_fn)
+    score + get_score(tail, f)
   end
 
   def get_score([], _), do: 0

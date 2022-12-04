@@ -11,11 +11,12 @@ To run the daily challenge, you can use the interactive environment:
 > iex -S mix
 
 (iex)> recompile()
-(iex)> AdventOfCode.day_one(1)
+(iex)> DayOne.part_one()
+(iex)> DayOne.part_two()
 
 ```
 
-Simply pick out the daily function, and add the challenge part as the param.
+Simply pick out the daily function and part.
 
 ## Tests
 To run the tests, use `mix test`

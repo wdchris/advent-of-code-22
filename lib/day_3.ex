@@ -1,4 +1,16 @@
 defmodule DayThree do
+  @input_file "resources/day_three_input.dat"
+
+  def part_one() do
+    read_file(@input_file)
+    |> get_priority_sum()
+  end
+
+  def part_two() do
+    read_file(@input_file)
+    |> get_badge_priority_sum()
+  end
+
   def get_priority_sum([head | tail]) do
     score =
       find_incorrect_item(head)
