@@ -1,49 +1,37 @@
 defmodule AdventOfCode do
-  def hello do
-    :world
-  end
-
   def day_one(part) do
-    input = "resources/day_one_input.dat"
-    case part do
-    1 -> DayOne.get_highest_calories(input, 1)
-    2 -> DayOne.get_highest_calories(input, 3)
+    with input <- "resources/day_one_input.dat" do
+      case part do
+        1 -> DayOne.get_highest_calories(input, 1)
+        2 -> DayOne.get_highest_calories(input, 3)
+      end
     end
   end
 
   def day_two(part) do
-    input = "resources/day_two_input.dat"
-    case part do
-    1 ->
-      DayTwo.read_file(input)
-      |> DayTwo.get_score(&DayTwo.map_to_rps/1)
-    2 ->
-      DayTwo.read_file(input)
-      |> DayTwo.get_score(&DayTwo.map_to_result/1)
+    with input <- DayTwo.read_file("resources/day_two_input.dat") do
+      case part do
+        1 -> DayTwo.get_score(input, &DayTwo.map_to_rps/1)
+        2 -> DayTwo.get_score(input, &DayTwo.map_to_result/1)
+      end
     end
   end
 
   def day_three(part) do
-    input = "resources/day_three_input.dat"
-    case part do
-    1 ->
-      DayThree.read_file(input)
-      |> DayThree.get_priority_sum()
-    2 ->
-      DayThree.read_file(input)
-      |> DayThree.get_badge_priority_sum()
+    with input <- DayThree.read_file("resources/day_three_input.dat") do
+      case part do
+        1 -> DayThree.get_priority_sum(input)
+        2 -> DayThree.get_badge_priority_sum(input)
+      end
     end
   end
 
   def day_four(part) do
-    input = "resources/day_four_input.dat"
-    case part do
-    1 ->
-      DayFour.read_file(input)
-      |> DayFour.get_fully_contained_ranges()
-    # 2 ->
-    #   DayThree.read_file(input)
-    #   |> DayThree.get_badge_priority_sum()
+    with input <- DayFour.read_file("resources/day_four_input.dat") do
+      case part do
+        1 -> DayFour.calculate(input, &DayFour.contains_range/2)
+        2 -> DayFour.calculate(input, &DayFour.overlaps/2)
+      end
     end
   end
 end
