@@ -34,4 +34,16 @@ defmodule AdventOfCode do
       |> DayThree.get_badge_priority_sum()
     end
   end
+
+  def day_four(part) do
+    input = "resources/day_four_input.dat"
+    case part do
+    1 ->
+      DayFour.read_file(input)
+      |> DayFour.get_fully_contained_ranges()
+    # 2 ->
+    #   DayThree.read_file(input)
+    #   |> DayThree.get_badge_priority_sum()
+    end
+  end
 end
