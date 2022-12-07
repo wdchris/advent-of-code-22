@@ -6,6 +6,7 @@ defmodule DayFive do
           stacks <- read_starting_stacks(file)
     do
        make_moves(file, stacks)
+       |> read_top_crates()
     end
   end
 
@@ -87,5 +88,10 @@ defmodule DayFive do
       else
         _ -> nil
       end
+  end
+
+  def read_top_crates(stacks) do
+    stacks
+    |> Enum.reduce("", fn e, a -> a <> List.first(e, "") end)
   end
 end

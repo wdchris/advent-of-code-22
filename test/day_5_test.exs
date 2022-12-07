@@ -89,4 +89,27 @@ defmodule DayFiveTest do
       assert DayFive.make_moves(input_moves, input_stacks) == result
     end
   end
+
+  describe "read_top_crates" do
+    test "takes the top crate" do
+      input = [["B","Q","G"]]
+      result = "B"
+
+      assert DayFive.read_top_crates(input) == result
+    end
+
+    test "takes multiple top crate" do
+      input = [["B","Q","G"],["Q","G"],["A","B","C"]]
+      result = "BQA"
+
+      assert DayFive.read_top_crates(input) == result
+    end
+
+    test "handles empty crates" do
+      input = [["B","Q","G"],[],["A","B","C"]]
+      result = "BA"
+
+      assert DayFive.read_top_crates(input) == result
+    end
+  end
 end
