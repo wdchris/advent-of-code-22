@@ -2,11 +2,11 @@ defmodule DayFive do
   @input_file "resources/day_five_input.dat"
 
   def part_one() do
-    file = read_file(@input_file)
-    #stacks =
-      read_starting_stacks(file)
-
-    # todo: read moves, parse (regex) and update stacks
+    with file <- read_file(@input_file),
+          stacks <- read_starting_stacks(file)
+    do
+       make_moves(file, stacks)
+    end
   end
 
   def part_two() do
@@ -15,20 +15,12 @@ defmodule DayFive do
   def read_file(path) do
     File.read!(path)
     |> String.split("\n")
-    # |> Enum.reduce([], fn line, acc ->
-    #     first_char = String.at(line, 0)
-    #     case first_char do
-    #       "[" -> push_line_to_stack(line, acc)
-    #       "m" -> IO.puts("move found")
-    #       _ -> IO.puts("nothing found")
-    #     end
-    #   end)
   end
 
   def read_starting_stacks(lines) do
     [first_line | tail] =
       lines
-      |> Enum.filter(fn e -> String.at(e,0) == "[" end)
+      |> Enum.filter(&String.contains?(&1,"["))
       |> Enum.reverse()
 
     init_stacks =
@@ -57,5 +49,43 @@ defmodule DayFive do
     Enum.zip_with([stack, letters], fn [curr_stack, new_letter] ->
       if String.trim(new_letter) == "", do: curr_stack, else: [new_letter | curr_stack]
     end)
+  end
+
+  def make_moves(lines, init_stacks) do
+    lines
+    |> Enum.map(&get_move/1)
+    |> Enum.reject(&is_nil/1)
+    |> Enum.reduce(init_stacks, &make_move/2)
+  end
+
+  def make_move(move, stacks) do
+    {to_move, to_keep} =
+      Enum.at(stacks, move.from - 1)
+      |> Enum.split(move.count)
+
+    new_stack =
+      Enum.concat(
+        Enum.reverse(to_move),
+        Enum.at(stacks, move.to - 1))
+
+    stacks
+    |> List.replace_at(move.to - 1, new_stack)
+    |> List.replace_at(move.from - 1, to_keep)
+  end
+
+  def get_move(line) do
+    with %{"count" => c, "from" => f, "to" => t } <-
+        Regex.named_captures(
+          ~r/move (?<count>\d+) from (?<from>\d+) to (?<to>\d+)/,
+          line)
+      do
+        %{
+          count: String.to_integer(c),
+          from: String.to_integer(f),
+          to: String.to_integer(t)
+        }
+      else
+        _ -> nil
+      end
   end
 end

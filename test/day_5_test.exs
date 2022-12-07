@@ -38,5 +38,55 @@ defmodule DayFiveTest do
       input = ["[Q]     [B]", "[G] [J] [S]"]
       assert DayFive.read_starting_stacks(input) == [["Q","G"],["J"],["B","S"]]
     end
+
+    test "works with no first stack" do
+      input = ["    [Q] [B]", "[G] [J] [S]"]
+      assert DayFive.read_starting_stacks(input) == [["G"],["Q","J"],["B","S"]]
+    end
+  end
+
+  describe "get_move" do
+    test "finds correct numeric elements" do
+      input = "move 1 from 8 to 1"
+      result =
+        %{
+            count: 1,
+            from: 8,
+            to: 1
+          }
+
+      assert DayFive.get_move(input) == result
+    end
+
+    test "returns nil if not a move" do
+      input = "[F] [N] [F] [V] [Q] [Z] [Z] [T] [Q]"
+      assert DayFive.get_move(input) == nil
+    end
+  end
+
+  describe "make_moves" do
+    test "move an element between stacks" do
+      input_moves = ["move 1 from 3 to 1"]
+      input_stacks = [["Q","G"],["J"],["B","S"]]
+      result = [["B","Q","G"],["J"],["S"]]
+
+      assert DayFive.make_moves(input_moves, input_stacks) == result
+    end
+
+    test "move two elements between stacks" do
+      input_moves = ["move 2 from 3 to 1"]
+      input_stacks = [["Q","G"],["J"],["B","S"]]
+      result = [["S","B","Q","G"],["J"],[]]
+
+      assert DayFive.make_moves(input_moves, input_stacks) == result
+    end
+
+    test "makes two moves" do
+      input_moves = ["move 1 from 3 to 1", "move 1 from 2 to 3"]
+      input_stacks = [["Q","G"],["J"],["B","S"]]
+      result = [["B","Q","G"],[],["J","S"]]
+
+      assert DayFive.make_moves(input_moves, input_stacks) == result
+    end
   end
 end
