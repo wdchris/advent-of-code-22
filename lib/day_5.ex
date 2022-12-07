@@ -5,12 +5,18 @@ defmodule DayFive do
     with file <- read_file(@input_file),
           stacks <- read_starting_stacks(file)
     do
-       make_moves(file, stacks)
-       |> read_top_crates()
+      make_moves(file, stacks, true)
+      |> read_top_crates()
     end
   end
 
   def part_two() do
+    with file <- read_file(@input_file),
+          stacks <- read_starting_stacks(file)
+    do
+      make_moves(file, stacks, false)
+      |> read_top_crates()
+    end
   end
 
   def read_file(path) do
@@ -19,26 +25,19 @@ defmodule DayFive do
   end
 
   def read_starting_stacks(lines) do
-    [first_line | tail] =
+    stack_lines =
       lines
       |> Enum.filter(&String.contains?(&1,"["))
       |> Enum.reverse()
 
     init_stacks =
-      first_line
+      List.first(stack_lines)
       |> String.graphemes()
       |> Enum.chunk_every(4)
       |> Enum.map(fn _ -> [] end)
 
-    read_starting_stacks([first_line | tail], init_stacks)
-  end
-
-  def read_starting_stacks([], stack), do: stack
-  def read_starting_stacks([head | tail], stack) do
-    read_starting_stacks(
-      tail,
-      push_line_to_stack(head, stack)
-    )
+    stack_lines
+    |> Enum.reduce(init_stacks, &push_line_to_stack/2)
   end
 
   def push_line_to_stack(line, stack) do
@@ -52,21 +51,25 @@ defmodule DayFive do
     end)
   end
 
-  def make_moves(lines, init_stacks) do
+  def make_moves(lines, init_stacks, reverse) do
     lines
     |> Enum.map(&get_move/1)
     |> Enum.reject(&is_nil/1)
-    |> Enum.reduce(init_stacks, &make_move/2)
+    |> Enum.reduce(init_stacks, &make_move(&1,&2,reverse))
   end
 
-  def make_move(move, stacks) do
+  def make_move(move, stacks, reverse) do
     {to_move, to_keep} =
       Enum.at(stacks, move.from - 1)
       |> Enum.split(move.count)
 
+    to_move =
+      if reverse do Enum.reverse(to_move)
+      else to_move end
+
     new_stack =
       Enum.concat(
-        Enum.reverse(to_move),
+        to_move,
         Enum.at(stacks, move.to - 1))
 
     stacks
@@ -92,6 +95,6 @@ defmodule DayFive do
 
   def read_top_crates(stacks) do
     stacks
-    |> Enum.reduce("", fn e, a -> a <> List.first(e, "") end)
+    |> Enum.reduce("", fn stack, acc -> acc <> List.first(stack, "") end)
   end
 end

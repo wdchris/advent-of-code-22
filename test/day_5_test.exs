@@ -64,13 +64,13 @@ defmodule DayFiveTest do
     end
   end
 
-  describe "make_moves" do
+  describe "make_moves when reversing" do
     test "move an element between stacks" do
       input_moves = ["move 1 from 3 to 1"]
       input_stacks = [["Q","G"],["J"],["B","S"]]
       result = [["B","Q","G"],["J"],["S"]]
 
-      assert DayFive.make_moves(input_moves, input_stacks) == result
+      assert DayFive.make_moves(input_moves, input_stacks, true) == result
     end
 
     test "move two elements between stacks" do
@@ -78,7 +78,7 @@ defmodule DayFiveTest do
       input_stacks = [["Q","G"],["J"],["B","S"]]
       result = [["S","B","Q","G"],["J"],[]]
 
-      assert DayFive.make_moves(input_moves, input_stacks) == result
+      assert DayFive.make_moves(input_moves, input_stacks, true) == result
     end
 
     test "makes two moves" do
@@ -86,7 +86,33 @@ defmodule DayFiveTest do
       input_stacks = [["Q","G"],["J"],["B","S"]]
       result = [["B","Q","G"],[],["J","S"]]
 
-      assert DayFive.make_moves(input_moves, input_stacks) == result
+      assert DayFive.make_moves(input_moves, input_stacks, true) == result
+    end
+  end
+
+  describe "make_moves when not reversing" do
+    test "move an element between stacks" do
+      input_moves = ["move 1 from 3 to 1"]
+      input_stacks = [["Q","G"],["J"],["B","S"]]
+      result = [["B","Q","G"],["J"],["S"]]
+
+      assert DayFive.make_moves(input_moves, input_stacks, false) == result
+    end
+
+    test "move two elements between stacks" do
+      input_moves = ["move 2 from 3 to 1"]
+      input_stacks = [["Q","G"],["J"],["B","S"]]
+      result = [["B","S","Q","G"],["J"],[]]
+
+      assert DayFive.make_moves(input_moves, input_stacks, false) == result
+    end
+
+    test "makes two moves" do
+      input_moves = ["move 1 from 3 to 1", "move 1 from 2 to 3"]
+      input_stacks = [["Q","G"],["J"],["B","S"]]
+      result = [["B","Q","G"],[],["J","S"]]
+
+      assert DayFive.make_moves(input_moves, input_stacks, false) == result
     end
   end
 
