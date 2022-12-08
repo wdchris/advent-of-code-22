@@ -1,5 +1,5 @@
 defmodule DaySix do
-  @input_file "resources/day_six_input.dat"
+  @input_file "resources/day_6_input.dat"
 
   def part_one(input \\ File.read!(@input_file)) do
     String.graphemes(input)

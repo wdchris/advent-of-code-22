@@ -1,5 +1,5 @@
 defmodule DayThree do
-  @input_file "resources/day_three_input.dat"
+  @input_file "resources/day_3_input.dat"
 
   def part_one() do
     read_file(@input_file)

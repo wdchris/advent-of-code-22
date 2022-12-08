@@ -1,5 +1,5 @@
 defmodule DayFive do
-  @input_file "resources/day_five_input.dat"
+  @input_file "resources/day_5_input.dat"
 
   def part_one() do
     with file <- read_file(@input_file),
