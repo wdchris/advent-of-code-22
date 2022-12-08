@@ -1,27 +1,31 @@
 defmodule DaySix do
   @input_file "resources/day_six_input.dat"
 
-  def part_one() do
-    File.read!(@input_file)
-    |> find_start_packet()
-  end
-
-  def find_start_packet(input) do
+  def part_one(input \\ File.read!(@input_file)) do
     String.graphemes(input)
-    |> find_start_packet("",0)
+    |> find_marker_start("", 0, 4)
   end
 
-  def find_start_packet([head | tail], curr, index) do
-    if is_start_of_packet(head <> curr) do
+  def part_two(input \\ File.read!(@input_file)) do
+    String.graphemes(input)
+    |> find_marker_start("", 0, 14)
+  end
+
+  def find_marker_start([head | tail], curr, index, marker_length) do
+    if is_start(head <> curr, marker_length) do
       index + 1
     else
-      find_start_packet(tail, head <> String.slice(curr,0,2), index + 1)
+      find_marker_start(
+        tail,
+        head <> String.slice(curr, 0, marker_length - 2),
+        index + 1,
+        marker_length)
     end
   end
 
-  def is_start_of_packet(input) do
+  def is_start(input, length) do
     String.graphemes(input)
     |> MapSet.new()
-    |> MapSet.size() == 4
+    |> MapSet.size() == length
   end
 end
