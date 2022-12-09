@@ -1,5 +1,5 @@
 defmodule Day7 do
-  defmodule Directory do
+  defmodule AOCDirectory do
     defstruct [
       :name,
       :path
@@ -7,7 +7,7 @@ defmodule Day7 do
 
     def root() do
       %{
-        "/" => %Directory{
+        "/" => %AOCDirectory{
           name: "/",
           path: "",
         }
@@ -15,11 +15,10 @@ defmodule Day7 do
     end
   end
 
-  defmodule File do
+  defmodule AOCFile do
     defstruct [
       :name,
       :path,
-      :parent,
       size: 0
     ]
   end
@@ -27,10 +26,12 @@ defmodule Day7 do
   @input_file "resources/day_7_input.dat"
 
   def part_one(input \\ File.read!(@input_file)) do
-
+    input
+    |> String.split("\n")
+    |> create_folder_map("")
   end
 
-  def create_folder_map(_, _, folder_map \\ Directory.root())
+  def create_folder_map(_, _, folder_map \\ AOCDirectory.root())
   def create_folder_map([head | tail], current_dir, folder_map) do
     cond do
       head == "$ cd /" ->
@@ -51,6 +52,10 @@ defmodule Day7 do
 
       head |> String.starts_with?("dir") ->
         new_map = add_dir(head, current_dir, folder_map)
+        create_folder_map(tail, current_dir, new_map)
+
+      true ->
+        new_map = add_file(head, current_dir, folder_map)
         create_folder_map(tail, current_dir, new_map)
     end
   end
@@ -75,9 +80,27 @@ defmodule Day7 do
     Map.put(
       folder_map,
       current_dir <> name,
-      %Directory{
+      %AOCDirectory{
         name: name,
         path: path
+    })
+  end
+
+  def add_file(head, current_dir, folder_map) do
+    %{"name" => name, "size" => size } =
+      Regex.named_captures(~r/(?<size>\d+) (?<name>.+)/, head)
+
+    path =
+      if String.length(current_dir) <= 1 do current_dir
+      else String.trim_trailing(current_dir, "/") end
+
+    Map.put(
+      folder_map,
+      current_dir <> name,
+      %AOCFile{
+        name: name,
+        path: path,
+        size: String.to_integer(size)
     })
   end
 end
