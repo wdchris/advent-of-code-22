@@ -546,7 +546,7 @@ defmodule DaySevenTest do
         size: 155
       }
 
-      assert Day7.find_smallest_directory(input, 150) == result
+      assert Day7.find_smallest_directory(input, 150) == 155
     end
   end
 end

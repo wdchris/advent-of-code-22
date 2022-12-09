@@ -14,6 +14,32 @@ defmodule Day7 do
         }
       }
     end
+
+    def parent_path(current_dir), do: Regex.replace(~r/\w+\/$/, current_dir, "")
+
+    def change_dir_path(dir_command, current_dir) do
+      %{"name" => name } =
+        Regex.named_captures(~r/\$ cd (?<name>\w+)/, dir_command)
+
+      current_dir <> name <> "/"
+    end
+
+    def add_to_map(dir_command, current_dir, folder_map) do
+      %{"name" => name } =
+        Regex.named_captures(~r/dir (?<name>\w+)/, dir_command)
+
+      path =
+        if String.length(current_dir) <= 1 do current_dir
+        else String.trim_trailing(current_dir, "/") end
+
+      Map.put(
+        folder_map,
+        current_dir <> name,
+        %AOCDirectory{
+          name: name,
+          path: path
+      })
+    end
   end
 
   defmodule AOCFile do
@@ -22,6 +48,24 @@ defmodule Day7 do
       :path,
       size: 0
     ]
+
+    def add_to_map(file_command, current_dir, folder_map) do
+      %{"name" => name, "size" => size } =
+        Regex.named_captures(~r/(?<size>\d+) (?<name>.+)/, file_command)
+
+      path =
+        if String.length(current_dir) <= 1 do current_dir
+        else String.trim_trailing(current_dir, "/") end
+
+      Map.put(
+        folder_map,
+        current_dir <> name,
+        %AOCFile{
+          name: name,
+          path: path,
+          size: String.to_integer(size)
+      })
+    end
   end
 
   @input_file "resources/day_7_input.dat"
@@ -33,16 +77,9 @@ defmodule Day7 do
   end
 
   def part_two(input \\ File.read!(@input_file)) do
-    folder_map =
-      input
-      |> setup_directories()
-
-    space_required = get_space_needed(folder_map)
-
-    %AOCDirectory{size: size} =
-      find_smallest_directory(folder_map, space_required)
-
-    size
+    input
+    |> setup_directories()
+    |> find_smallest_directory()
   end
 
   def setup_directories(input) do
@@ -60,71 +97,25 @@ defmodule Day7 do
         create_folder_map(tail, "/", folder_map)
 
       head == "$ cd .." ->
-        create_folder_map(
-          tail,
-          Regex.replace(~r/\w+\/$/, current_dir, ""),
-          folder_map
-        )
+        create_folder_map(tail, AOCDirectory.parent_path(current_dir), folder_map)
 
       head |> String.starts_with?("$ cd") ->
-        create_folder_map(tail, change_dir(head, current_dir), folder_map)
+        create_folder_map(tail, AOCDirectory.change_dir_path(head, current_dir), folder_map)
 
       head == "$ ls" ->
         create_folder_map(tail, current_dir, folder_map)
 
       head |> String.starts_with?("dir") ->
-        new_map = add_dir(head, current_dir, folder_map)
+        new_map = AOCDirectory.add_to_map(head, current_dir, folder_map)
         create_folder_map(tail, current_dir, new_map)
 
       true ->
-        new_map = add_file(head, current_dir, folder_map)
+        new_map = AOCFile.add_to_map(head, current_dir, folder_map)
         create_folder_map(tail, current_dir, new_map)
     end
   end
 
   def create_folder_map([], _, folder_map), do: folder_map
-
-  def change_dir(head, current_dir) do
-    %{"name" => name } =
-      Regex.named_captures(~r/\$ cd (?<name>\w+)/, head)
-
-    current_dir <> name <> "/"
-  end
-
-  def add_dir(head, current_dir, folder_map) do
-    %{"name" => name } =
-      Regex.named_captures(~r/dir (?<name>\w+)/, head)
-
-    path =
-      if String.length(current_dir) <= 1 do current_dir
-      else String.trim_trailing(current_dir, "/") end
-
-    Map.put(
-      folder_map,
-      current_dir <> name,
-      %AOCDirectory{
-        name: name,
-        path: path
-    })
-  end
-
-  def add_file(head, current_dir, folder_map) do
-    %{"name" => name, "size" => size } =
-      Regex.named_captures(~r/(?<size>\d+) (?<name>.+)/, head)
-
-    path =
-      if String.length(current_dir) <= 1 do current_dir
-      else String.trim_trailing(current_dir, "/") end
-
-    Map.put(
-      folder_map,
-      current_dir <> name,
-      %AOCFile{
-        name: name,
-        path: path,
-        size: String.to_integer(size)
-    })
-  end
 
   def set_dir_sizes(folder_map, current_dir \\ "/") do
       new_map =
@@ -165,6 +156,9 @@ defmodule Day7 do
     30000000 - (70000000 - size)
   end
 
+  def find_smallest_directory(folder_map), do:
+    find_smallest_directory(folder_map, get_space_needed(folder_map))
+
   def find_smallest_directory(folder_map, space_required) do
     {_, dir} =
       folder_map
@@ -175,6 +169,6 @@ defmodule Day7 do
       |> Enum.sort(fn {_, a}, {_, b} -> a.size < b.size end)
       |> Enum.at(0)
 
-    dir
+    dir.size
   end
 end
