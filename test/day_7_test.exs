@@ -32,6 +32,37 @@ defmodule DaySevenTest do
     end
   end
 
+  describe "part_two" do
+    test "finds the smallest dir to delete" do
+      input =
+        "$ cd /
+        $ ls
+        dir a
+        14848514 b.txt
+        8504156 c.dat
+        dir d
+        $ cd a
+        $ ls
+        dir e
+        29116 f
+        2557 g
+        62596 h.lst
+        $ cd e
+        $ ls
+        584 i
+        $ cd ..
+        $ cd ..
+        $ cd d
+        $ ls
+        4060174 j
+        8033020 d.log
+        5626152 d.ext
+        7214296 k"
+
+        assert Day7.part_two(input) == 24933642
+    end
+  end
+
   describe "create_folder_map" do
     test "adds a directory" do
       input = [
@@ -447,6 +478,75 @@ defmodule DaySevenTest do
       }
 
       assert Day7.set_dir_sizes(input) == result
+    end
+  end
+
+  describe "get_space_needed" do
+    test "" do
+      input = %{
+        "/" => %Day7.AOCDirectory{
+          name: "/",
+          path: "",
+          size: 48381165
+        },
+        "/x" => %Day7.AOCFile{
+          name: "x",
+          path: "/",
+          size: 28381165
+        },
+        "/y" => %Day7.AOCFile{
+          name: "y",
+          path: "/",
+          size: 20000000
+        }
+      }
+
+      assert Day7.get_space_needed(input) == 8381165
+    end
+  end
+
+  describe "find_smallest_directory" do
+    test "get smallest viable directory" do
+      input = %{
+        "/" => %Day7.AOCDirectory{
+          name: "/",
+          path: "",
+          size: 300
+        },
+        "/a" => %Day7.AOCDirectory{
+          name: "a",
+          path: "/",
+          size: 200
+        },
+        "/b" => %Day7.AOCDirectory{
+          name: "b",
+          path: "/",
+          size: 50
+        },
+        "/c" => %Day7.AOCDirectory{
+          name: "c",
+          path: "/",
+          size: 160
+        },
+        "/d" => %Day7.AOCDirectory{
+          name: "d",
+          path: "/",
+          size: 155
+        },
+        "/e" => %Day7.AOCDirectory{
+          name: "e",
+          path: "/",
+          size: 170
+        }
+      }
+
+      result = %Day7.AOCDirectory{
+        name: "d",
+        path: "/",
+        size: 155
+      }
+
+      assert Day7.find_smallest_directory(input, 150) == result
     end
   end
 end

@@ -28,11 +28,29 @@ defmodule Day7 do
 
   def part_one(input \\ File.read!(@input_file)) do
     input
+    |> setup_directories()
+    |> calculate_sum()
+  end
+
+  def part_two(input \\ File.read!(@input_file)) do
+    folder_map =
+      input
+      |> setup_directories()
+
+    space_required = get_space_needed(folder_map)
+
+    %AOCDirectory{size: size} =
+      find_smallest_directory(folder_map, space_required)
+
+    size
+  end
+
+  def setup_directories(input) do
+    input
     |> String.split("\n")
     |> Enum.map(&String.trim/1)
     |> create_folder_map("")
     |> set_dir_sizes()
-    |> calculate_sum()
   end
 
   def create_folder_map(_, _, folder_map \\ AOCDirectory.root())
@@ -140,5 +158,23 @@ defmodule Day7 do
           _ -> false
         end)
     |> Enum.reduce(0, fn {_, v}, acc -> acc + v.size end)
+  end
+
+  def get_space_needed(folder_map) do
+    %AOCDirectory{size: size} = Map.get(folder_map, "/")
+    30000000 - (70000000 - size)
+  end
+
+  def find_smallest_directory(folder_map, space_required) do
+    {_, dir} =
+      folder_map
+      |> Map.filter(fn
+            {_, %AOCDirectory{size: s}} -> s >= space_required
+            _ -> false
+          end)
+      |> Enum.sort(fn {_, a}, {_, b} -> a.size < b.size end)
+      |> Enum.at(0)
+
+    dir
   end
 end
