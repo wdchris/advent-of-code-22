@@ -1,7 +1,6 @@
 defmodule DaySevenTest do
   use ExUnit.Case
 
-  @tag :skip
   describe "part_one" do
     test "sums up dirs <= 100000 correctly" do
       input =
@@ -92,6 +91,50 @@ defmodule DaySevenTest do
         "$ cd a",
         "$ ls",
         "dir e",
+        "$ cd ..",
+        "$ cd b",
+        "$ ls",
+        "dir f"
+      ]
+
+      result = %{
+        "/" => %Day7.AOCDirectory{
+          name: "/",
+          path: "",
+        },
+        "/a" => %Day7.AOCDirectory{
+          name: "a",
+          path: "/",
+        },
+        "/b" => %Day7.AOCDirectory{
+          name: "b",
+          path: "/",
+        },
+        "/a/e" => %Day7.AOCDirectory{
+          name: "e",
+          path: "/a",
+        },
+        "/b/f" => %Day7.AOCDirectory{
+          name: "f",
+          path: "/b",
+        }
+      }
+
+      assert Day7.create_folder_map(input, "") == result
+    end
+
+    test "handles mutiple cd .. commands" do
+      input = [
+        "$ cd /",
+        "$ ls",
+        "dir a",
+        "dir b",
+        "$ cd a",
+        "$ ls",
+        "dir e",
+        "$ cd e",
+        "$ ls",
+        "$ cd ..",
         "$ cd ..",
         "$ cd b",
         "$ ls",
@@ -296,6 +339,114 @@ defmodule DaySevenTest do
       }
 
       assert Day7.create_folder_map(input, "") == result
+    end
+  end
+
+  describe "set_dir_sizes" do
+    test "gets a root dir size" do
+      input = %{
+        "/" => %Day7.AOCDirectory{
+          name: "/",
+          path: "",
+        },
+        "/x" => %Day7.AOCFile{
+          name: "x",
+          path: "/",
+          size: 10
+        },
+        "/y" => %Day7.AOCFile{
+          name: "y",
+          path: "/",
+          size: 20
+        }
+      }
+
+      result = %{
+        "/" => %Day7.AOCDirectory{
+          name: "/",
+          path: "",
+          size: 30
+        },
+        "/x" => %Day7.AOCFile{
+          name: "x",
+          path: "/",
+          size: 10
+        },
+        "/y" => %Day7.AOCFile{
+          name: "y",
+          path: "/",
+          size: 20
+        }
+      }
+
+      assert Day7.set_dir_sizes(input) == result
+    end
+
+    test "gets nested dir size" do
+      input = %{
+        "/" => %Day7.AOCDirectory{
+          name: "/",
+          path: "",
+        },
+        "/a" => %Day7.AOCDirectory{
+          name: "a",
+          path: "/",
+        },
+        "/a/x" => %Day7.AOCFile{
+          name: "x",
+          path: "/a",
+          size: 10
+        },
+        "/b" => %Day7.AOCDirectory{
+          name: "b",
+          path: "/",
+        },
+        "/b/y" => %Day7.AOCFile{
+          name: "y",
+          path: "/b",
+          size: 20
+        },
+        "/b/z" => %Day7.AOCFile{
+          name: "z",
+          path: "/b",
+          size: 20
+        }
+      }
+
+      result = %{
+        "/" => %Day7.AOCDirectory{
+          name: "/",
+          path: "",
+          size: 50
+        },
+        "/a" => %Day7.AOCDirectory{
+          name: "a",
+          path: "/",
+          size: 10
+        },
+        "/a/x" => %Day7.AOCFile{
+          name: "x",
+          path: "/a",
+          size: 10
+        },
+        "/b" => %Day7.AOCDirectory{
+          name: "b",
+          path: "/",
+          size: 40
+        },
+        "/b/y" => %Day7.AOCFile{
+          name: "y",
+          path: "/b",
+          size: 20
+        },
+        "/b/z" => %Day7.AOCFile{
+          name: "z",
+          path: "/b",
+          size: 20
+        }
+      }
+
+      assert Day7.set_dir_sizes(input) == result
     end
   end
 end

@@ -2,7 +2,8 @@ defmodule Day7 do
   defmodule AOCDirectory do
     defstruct [
       :name,
-      :path
+      :path,
+      size: 0
     ]
 
     def root() do
@@ -28,7 +29,10 @@ defmodule Day7 do
   def part_one(input \\ File.read!(@input_file)) do
     input
     |> String.split("\n")
+    |> Enum.map(&String.trim/1)
     |> create_folder_map("")
+    |> set_dir_sizes()
+    |> calculate_sum()
   end
 
   def create_folder_map(_, _, folder_map \\ AOCDirectory.root())
@@ -40,7 +44,7 @@ defmodule Day7 do
       head == "$ cd .." ->
         create_folder_map(
           tail,
-          Regex.replace(~r/\w\/$/, current_dir, ""),
+          Regex.replace(~r/\w+\/$/, current_dir, ""),
           folder_map
         )
 
@@ -102,5 +106,39 @@ defmodule Day7 do
         path: path,
         size: String.to_integer(size)
     })
+  end
+
+  def set_dir_sizes(folder_map, current_dir \\ "/") do
+      new_map =
+        folder_map
+        |> Map.filter(fn
+              {_, %AOCDirectory{path: p}} -> p == current_dir
+              _ -> false
+            end)
+        |> Enum.reduce(folder_map, fn {key, _}, acc ->
+              set_dir_sizes(acc, key)
+            end)
+
+      size =
+        new_map
+        |> Map.filter(fn {_, v} -> v.path == current_dir end)
+        |> Enum.reduce(0, fn {_, v}, acc -> acc + v.size end)
+
+      {_, new_map} =
+        new_map
+        |> Map.get_and_update!(current_dir, fn val ->
+              {val, %{val | size: size}}
+            end)
+
+      new_map
+  end
+
+  def calculate_sum(folder_map) do
+    folder_map
+    |> Map.filter(fn
+          {_, %AOCDirectory{size: s}} -> s <= 100000
+          _ -> false
+        end)
+    |> Enum.reduce(0, fn {_, v}, acc -> acc + v.size end)
   end
 end
