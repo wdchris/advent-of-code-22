@@ -4,6 +4,15 @@ defmodule Day7 do
       :name,
       :path
     ]
+
+    def root() do
+      %{
+        "/" => %Directory{
+          name: "/",
+          path: "",
+        }
+      }
+    end
   end
 
   defmodule File do
@@ -21,22 +30,54 @@ defmodule Day7 do
 
   end
 
-  def create_folder_map([], folder_map, _), do: folder_map
-  def create_folder_map([head | tail], folder_map, current_dir) do
+  def create_folder_map(_, _, folder_map \\ Directory.root())
+  def create_folder_map([head | tail], current_dir, folder_map) do
     cond do
-      head == "$ cd /" -> create_folder_map(tail, folder_map, "/")
-      head == "$ ls" -> create_folder_map(tail, folder_map, current_dir)
-      String.starts_with?(head, "dir") ->
-        %{"name" => name } = Regex.named_captures(~r/dir (?<name>\w+)/, head)
-        updated_map =
-          Map.put(
-            folder_map,
-            current_dir <> name,
-            %Directory{
-              name: name,
-              path: current_dir
-          })
-        create_folder_map(tail, updated_map, current_dir)
+      head == "$ cd /" ->
+        create_folder_map(tail, "/", folder_map)
+
+      head == "$ cd .." ->
+        create_folder_map(
+          tail,
+          Regex.replace(~r/\w\/$/, current_dir, ""),
+          folder_map
+        )
+
+      head |> String.starts_with?("$ cd") ->
+        create_folder_map(tail, change_dir(head, current_dir), folder_map)
+
+      head == "$ ls" ->
+        create_folder_map(tail, current_dir, folder_map)
+
+      head |> String.starts_with?("dir") ->
+        new_map = add_dir(head, current_dir, folder_map)
+        create_folder_map(tail, current_dir, new_map)
     end
+  end
+
+  def create_folder_map([], _, folder_map), do: folder_map
+
+  def change_dir(head, current_dir) do
+    %{"name" => name } =
+      Regex.named_captures(~r/\$ cd (?<name>\w+)/, head)
+
+    current_dir <> name <> "/"
+  end
+
+  def add_dir(head, current_dir, folder_map) do
+    %{"name" => name } =
+      Regex.named_captures(~r/dir (?<name>\w+)/, head)
+
+    path =
+      if String.length(current_dir) <= 1 do current_dir
+      else String.trim_trailing(current_dir, "/") end
+
+    Map.put(
+      folder_map,
+      current_dir <> name,
+      %Directory{
+        name: name,
+        path: path
+    })
   end
 end
