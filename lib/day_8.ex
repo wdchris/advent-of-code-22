@@ -43,7 +43,7 @@ defmodule Day8 do
     |> Enum.with_index()
   end
 
-  def apply(matrix, dir, fun, y_func) do
+  def apply_fun(matrix, dir, fun) do
     matrix
     |> Enum.with_index()
     |> Enum.reduce(Matrix.scale(matrix, 0), fn {row, x},acc ->
@@ -51,7 +51,10 @@ defmodule Day8 do
         |> reverse_if_needed(dir)
         |> fun.()
         |> Enum.with_index()
-        |> Enum.reduce(acc, fn {v, y},m -> Matrix.set(m, x, y_func.(y), v) end)
+        |> Enum.reduce(acc, fn {v, y},m ->
+            y = get_y(matrix, y, dir)
+            Matrix.set(m, x, y, v)
+          end)
     end)
   end
 
@@ -60,16 +63,22 @@ defmodule Day8 do
     when dir == :bottom, do: Enum.reverse(row)
   def reverse_if_needed(row, _), do: row
 
+  def get_y(matrix, y, dir)
+    when dir == :right
+    when dir == :bottom do
+      y_offset = length(hd(matrix)) - 1
+      y_offset - y
+    end
+  def get_y(_, y, _), do: y
+
   def visible_top_bottom(matrix) do
     visible_left_right(Matrix.transpose(matrix))
     |> Matrix.transpose()
   end
 
   def visible_left_right(matrix) do
-    y_offset = length(hd(matrix)) - 1
-
-    left = apply(matrix, :left, &find_visible/1, fn y -> y end)
-    right = apply(matrix, :right, &find_visible/1, fn y -> y_offset - y end)
+    left = apply_fun(matrix, :left, &find_visible/1)
+    right = apply_fun(matrix, :right, &find_visible/1)
 
     Matrix.add(left, right)
   end
@@ -78,6 +87,18 @@ defmodule Day8 do
   def find_visible([], indexes, _), do: Enum.reverse(indexes)
   def find_visible([head | tail], indexes, curr_max) when head <= curr_max, do: find_visible(tail, [0 | indexes], curr_max)
   def find_visible([head | tail], indexes, curr_max) when head > curr_max, do: find_visible(tail, [1 | indexes], head)
+
+  def scenic_top_bottom(matrix) do
+    scenic_left_right(Matrix.transpose(matrix))
+    |> Matrix.transpose()
+  end
+
+  def scenic_left_right(matrix) do
+    left = apply_fun(matrix, :left, &find_scenic_score/1)
+    right = apply_fun(matrix, :right, &find_scenic_score/1)
+
+    Matrix.emult(left, right)
+  end
 
   def find_scenic_score(row) do
     row
@@ -90,20 +111,6 @@ defmodule Day8 do
         [find_scenic_score(to_test, v) | acc]
       end)
     |> Enum.reverse()
-  end
-
-  def scenic_top_bottom(matrix) do
-    scenic_left_right(Matrix.transpose(matrix))
-    |> Matrix.transpose()
-  end
-
-  def scenic_left_right(matrix) do
-    y_offset = length(hd(matrix)) - 1
-
-    left = apply(matrix, :left, &find_scenic_score/1, fn y -> y end)
-    right = apply(matrix, :right, &find_scenic_score/1, fn y -> y_offset - y end)
-
-    Matrix.emult(left, right)
   end
 
   def find_scenic_score(_, _, count \\ 0)
