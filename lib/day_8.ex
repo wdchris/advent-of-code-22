@@ -54,7 +54,8 @@ defmodule Day8 do
         row
         |> reverse_if_needed(dir)
         |> find_visible()
-        |> Enum.reduce(acc, fn y,m -> Matrix.set(m, x, y_func.(y), 1) end)
+        |> Enum.with_index()
+        |> Enum.reduce(acc, fn {v, y},m -> Matrix.set(m, x, y_func.(y), v) end)
     end)
   end
 
@@ -64,9 +65,9 @@ defmodule Day8 do
   def reverse_if_needed(row, _), do: row
 
   def find_visible(_, indexes \\ [], curr_index \\ 0, curr_max \\ -1)
-  def find_visible([], indexes, _, _), do: indexes
+  def find_visible([], indexes, _, _), do: Enum.reverse(indexes)
   def find_visible([head | tail], indexes, curr_index, curr_max) when head <= curr_max,
-    do: find_visible(tail, indexes, curr_index + 1, curr_max)
+    do: find_visible(tail, [0 | indexes], curr_index + 1, curr_max)
   def find_visible([head | tail], indexes, curr_index, curr_max) when head > curr_max,
-    do: find_visible(tail, [curr_index | indexes], curr_index + 1, head)
+    do: find_visible(tail, [1 | indexes], curr_index + 1, head)
 end

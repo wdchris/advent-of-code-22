@@ -14,19 +14,26 @@ defmodule Day8Test do
     test "finds edge trees" do
       input = [2,0,2]
 
-      assert Day8.find_visible(input) == [0]
+      assert Day8.find_visible(input) == [1,0,0]
     end
 
     test "finds edge and middle trees" do
       input = [2,3,2]
 
-      assert Day8.find_visible(input) == [1,0]
+      assert Day8.find_visible(input) == [1,1,0]
     end
 
     test "finds trees in complex list" do
       input = [2,3,0,1,4,0,2]
 
-      assert Day8.find_visible(input) == [4,1,0]
+      assert Day8.find_visible(input) == [1,1,0,0,1,0,0]
+    end
+  end
+
+  describe "find_scenic_score" do
+    test "finds zero for one element" do
+      input = [2]
+      result = [0]
     end
   end
 end
