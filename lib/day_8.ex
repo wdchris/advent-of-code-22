@@ -11,6 +11,16 @@ defmodule Day8 do
     |> Enum.count(fn x -> x > 0 end)
   end
 
+  def part_two(input \\ File.read!(@input_file)) do
+    matrix = to_matrix(input)
+
+    Matrix.emult(
+      scenic_left_right(matrix),
+      scenic_top_bottom(matrix))
+    |> List.flatten()
+    |> Enum.max()
+  end
+
   def to_matrix(input) do
     lines = String.split(input, "\n")
     {rows, cols} = {length(lines), String.length(hd(lines))}
@@ -33,27 +43,13 @@ defmodule Day8 do
     |> Enum.with_index()
   end
 
-  def visible_top_bottom(matrix) do
-    visible_left_right(Matrix.transpose(matrix))
-    |> Matrix.transpose()
-  end
-
-  def visible_left_right(matrix) do
-    y_offset = length(hd(matrix)) - 1
-
-    left = visible(matrix, :left, fn y -> y end)
-    right = visible(matrix, :right, fn y -> y_offset - y end)
-
-    Matrix.add(left, right)
-  end
-
-  def visible(matrix, dir, y_func) do
+  def apply(matrix, dir, fun, y_func) do
     matrix
     |> Enum.with_index()
     |> Enum.reduce(Matrix.scale(matrix, 0), fn {row, x},acc ->
         row
         |> reverse_if_needed(dir)
-        |> find_visible()
+        |> fun.()
         |> Enum.with_index()
         |> Enum.reduce(acc, fn {v, y},m -> Matrix.set(m, x, y_func.(y), v) end)
     end)
@@ -64,10 +60,54 @@ defmodule Day8 do
     when dir == :bottom, do: Enum.reverse(row)
   def reverse_if_needed(row, _), do: row
 
-  def find_visible(_, indexes \\ [], curr_index \\ 0, curr_max \\ -1)
-  def find_visible([], indexes, _, _), do: Enum.reverse(indexes)
-  def find_visible([head | tail], indexes, curr_index, curr_max) when head <= curr_max,
-    do: find_visible(tail, [0 | indexes], curr_index + 1, curr_max)
-  def find_visible([head | tail], indexes, curr_index, curr_max) when head > curr_max,
-    do: find_visible(tail, [1 | indexes], curr_index + 1, head)
+  def visible_top_bottom(matrix) do
+    visible_left_right(Matrix.transpose(matrix))
+    |> Matrix.transpose()
+  end
+
+  def visible_left_right(matrix) do
+    y_offset = length(hd(matrix)) - 1
+
+    left = apply(matrix, :left, &find_visible/1, fn y -> y end)
+    right = apply(matrix, :right, &find_visible/1, fn y -> y_offset - y end)
+
+    Matrix.add(left, right)
+  end
+
+  def find_visible(_, indexes \\ [], curr_max \\ -1)
+  def find_visible([], indexes, _), do: Enum.reverse(indexes)
+  def find_visible([head | tail], indexes, curr_max) when head <= curr_max, do: find_visible(tail, [0 | indexes], curr_max)
+  def find_visible([head | tail], indexes, curr_max) when head > curr_max, do: find_visible(tail, [1 | indexes], head)
+
+  def find_scenic_score(row) do
+    row
+    |> Enum.with_index()
+    |> Enum.reduce([], fn {v,y}, acc ->
+        to_test =
+          Enum.take(row, y)
+          |> Enum.reverse()
+
+        [find_scenic_score(to_test, v) | acc]
+      end)
+    |> Enum.reverse()
+  end
+
+  def scenic_top_bottom(matrix) do
+    scenic_left_right(Matrix.transpose(matrix))
+    |> Matrix.transpose()
+  end
+
+  def scenic_left_right(matrix) do
+    y_offset = length(hd(matrix)) - 1
+
+    left = apply(matrix, :left, &find_scenic_score/1, fn y -> y end)
+    right = apply(matrix, :right, &find_scenic_score/1, fn y -> y_offset - y end)
+
+    Matrix.emult(left, right)
+  end
+
+  def find_scenic_score(_, _, count \\ 0)
+  def find_scenic_score([], _, count), do: count
+  def find_scenic_score([head | _], height, count) when head >= height, do: count + 1
+  def find_scenic_score([head | tail], height, count) when head < height, do: find_scenic_score(tail, height, count + 1)
 end
